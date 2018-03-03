@@ -160,52 +160,49 @@ document.addEventListener('DOMContentLoaded', function () {
             let ancestorPosition = ancestorObject.renderedObject.position();
             let blockHeight = block.innerHeight();
             let ancestorHeight = ancestorObject.renderedObject.innerHeight();
-            console.log(blockHeight);
 
             let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             let svgNS = svg.namespaceURI;
-
-            let rect = document.createElementNS(svgNS,'rect');
-            rect.setAttribute('x', 0);
-            rect.setAttribute('y', 0);
-            rect.setAttribute('width', 20);
-            rect.setAttribute('height', 20);
             let lineColor = block.css('border-color');
-            rect.setAttribute('fill', lineColor);
-            let figure = rect;
-            svg.setAttribute('height', figure.getAttribute('height'));
-            svg.setAttribute('width', figure.getAttribute('width'));
 
-            svg.style.top = blockPosition.top;
-            svg.style.left = blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2;
-            svg.appendChild(rect);
+            // let rect = document.createElementNS(svgNS,'rect');
+            // rect.setAttribute('x', 0);
+            // rect.setAttribute('y', 0);
+            // rect.setAttribute('width', 20);
+            // rect.setAttribute('height', 20);
+            // rect.setAttribute('fill', lineColor);
+            // let figure = rect;
+            // svg.setAttribute('height', figure.getAttribute('height'));
+            // svg.setAttribute('width', figure.getAttribute('width'));
 
-            document.getElementById('canvas').appendChild(svg);
+            // svg.style.top = blockPosition.top;
+            // svg.style.left = blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2;
+            // svg.appendChild(rect);
+
+            // document.getElementById('canvas').appendChild(svg);
 
             let svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
             let line = document.createElementNS(svgNS,'line');
-            line.setAttribute('x1', ancestorPosition.left + getWidth(block) / 2);
-            line.setAttribute('y1',  ancestorPosition.top + ancestorHeight);
-            line.setAttribute('x2', blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2);
-            line.setAttribute('y2', blockPosition.top);
+            // line.setAttribute('x1', ancestorPosition.left + getWidth(block) / 2);
+            // line.setAttribute('y1',  ancestorPosition.top + ancestorHeight);
+            // line.setAttribute('x2', blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2);
+            // line.setAttribute('y2', blockPosition.top);
+           
+            line.setAttribute('x1', 0);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', 0);
+            line.setAttribute('y2', blockPosition.top - blockHeight);
             line.setAttribute('stroke', lineColor);
-            line.setAttribute('srtoke-width', 2);
+            line.setAttribute('srtoke-width', 3);
             figure = line;
             svg1.setAttribute('height', Math.abs(figure.getAttribute('y2') - figure.getAttribute('y1')));
-            svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 2));
-            // svg1.setAttribute('height', 210);
-            // svg1.setAttribute('width', 500);
-            console.log(line.getAttribute('x1'));
-            console.log(line.getAttribute('y1'));
-            console.log(line.getAttribute('x2'));
-            console.log(line.getAttribute('y2'));
-            // console.log(svg1.getAttribute('height'));
-            // console.log(svg1.getAttribute('width'));
+            svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 5));
 
-            svg1.style.top = ancestorPosition.top + ancestorHeight;
-            svg1.style.left = ancestorPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2;
+            svg1.style.top = ancestorPosition.top + ancestorHeight + parseInt(block.css('margin-top').slice(0, -2));
+            svg1.style.left = blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2 + parseInt(block.css('margin-top').slice(0, -2) * 2);
             svg1.appendChild(line);
+
 
             document.getElementById('canvas').appendChild(svg1);
         }
