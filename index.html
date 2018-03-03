@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag Drop Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.8/interact.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="js/schema_script.js"></script> -->
+    <script type="text/javascript" src="js/schema_jquery.js"></script>
+    <script>
+        // target elements with the "draggable" class
+       interact('.draggable')
+            .draggable({
+                // enable inertial throwing
+                inertia: true,
+                // keep the element within the area of it's parent
+                restrict: {
+                    restriction: "parent",
+                    endOnly: true,
+                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+                },
+                // call this function on every dragmove event
+                onmove: dragMoveListener,
+                // call this function on every dragend event
+            });
+        function dragMoveListener (event) {
+            var target = event.target,
+                x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+            target.style.webkitTransform =
+                target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)';
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #F5F5F5;
+        }
+        #canvas {
+            position: relative;
+            /* display: flex;
+            flex-wrap: wrap; */
+            width: 900px;
+            min-height: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .simple-block {
+            position: absolute;
+            display: inline-block;
+            width: 180px;
+            margin: 15px;
+            margin-top: 10px;
+            padding: 20px 5px;
+            border: 1px solid #aab7b8 ;
+        }
+
+        .simple-text {
+            text-align: center;
+            font-size: 14px;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+        }
+
+        .selected-block {
+            background-color: #ebf5fb;
+        }
+
+        .default-block {
+            background-color: transparent;
+        }
+		
+		.special {
+			position: absolute;
+			z-index: 100;
+			background-color: yellow;
+		}
+        svg {
+            position: absolute;
+        }
+   </style>
+</head>
+<body>
+
+    
+    <label>Vertical:</label>
+    <input type="number" id="vertical-number"/>
+    <label>Horizontal:</label>
+    <input type="number" id="horizontal-number"/>
+    <!-- <button type="button" id="create-simple-schema-btn" onclick="createSimpleSchema()">Create Simple Schema</button> -->
+    <button type="button" id="add-item">Add Item</button>
+
+    <!-- <button type="button" id="remove-item" onclick="removeItem()">Remove Item</button> -->
+    <button type="button" id="remove-item">Remove Item</button>
+
+    <div id="canvas">
+    </div>
+
+<script>
+
+
+</script>
+
+
+</body>
+</html>
