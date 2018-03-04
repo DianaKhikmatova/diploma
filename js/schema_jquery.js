@@ -188,19 +188,21 @@ document.addEventListener('DOMContentLoaded', function () {
             // line.setAttribute('y1',  ancestorPosition.top + ancestorHeight);
             // line.setAttribute('x2', blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2);
             // line.setAttribute('y2', blockPosition.top);
-           
+
+            let lineLeft = ancestorPosition.left + getWidth(block) / 2 + parseInt(block.css('margin-top').slice(0, -2) * 2);
+            let lineTop = ancestorPosition.top + ancestorHeight + parseInt(block.css('margin-top').slice(0, -2));
             line.setAttribute('x1', 0);
             line.setAttribute('y1', 0);
-            line.setAttribute('x2', 0);
-            line.setAttribute('y2', blockPosition.top - blockHeight);
+            line.setAttribute('x2', blockPosition.left - lineLeft / 2 - getWidth(block) / 2 - blockMargin * 2 - 4);
+            line.setAttribute('y2', 100 - ancestorHeight);
             line.setAttribute('stroke', lineColor);
             line.setAttribute('srtoke-width', 3);
             figure = line;
             svg1.setAttribute('height', Math.abs(figure.getAttribute('y2') - figure.getAttribute('y1')));
-            svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 5));
-
-            svg1.style.top = ancestorPosition.top + ancestorHeight + parseInt(block.css('margin-top').slice(0, -2));
-            svg1.style.left = blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2 + parseInt(block.css('margin-top').slice(0, -2) * 2);
+            svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 2));
+            
+            svg1.style.top = lineTop;
+            svg1.style.left = lineLeft;
             svg1.appendChild(line);
 
 
