@@ -1,0 +1,112 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+ul li {
+    list-style-type: none;
+}
+
+body {
+    background-color: #F5F5F5;
+}
+
+.actions-container {
+    width: 900px;
+    margin: 20px auto;
+}
+
+#canvas {
+    position: relative;
+    /* display: flex;
+    flex-wrap: wrap; */
+    width: 900px;
+    min-height: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.simple-block {
+    position: absolute;
+    display: inline-block;
+    width: 180px;
+    margin: 15px;
+    margin-top: 10px;
+    padding: 20px 5px;
+    border: 1px solid #aab7b8 ;
+}
+
+.simple-text {
+    text-align: center;
+    font-size: 14px;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+}
+
+.selected-block {
+    background-color: #ebf5fb;
+}
+
+.default-block {
+    background-color: transparent;
+}
+
+.special {
+    position: absolute;
+    z-index: 100;
+    background-color: yellow;
+}
+svg {
+    position: absolute;
+}
+.pop-up {
+    position: absolute;
+    left: calc(50% - 225px);
+    top: 50px;
+    width: 450px;
+    padding: 25px;
+    background-color: #fff;
+    box-shadow: 0 0 10px #17202A;
+    border-radius: 2px;
+}
+
+.context-menu {
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 10px #aab7b8;
+}
+
+.pop-up-background {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(23, 32, 42, 0.7);
+    z-index: 999;
+}
+
+.pop-up input, .pop-up p {
+    margin-bottom: 15px;
+} 
+
+label, .pop-up p {
+    font-family:  Verdana, Geneva, Tahoma, sans-serif;
+}
+
+button {
+    padding: 5px 10px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+.pop-up-button {
+    float: right;
+    margin-left: 15px;
+}
+
+.primary-button {
+    background-color: #2E86C1;
+    color: #fff; 
+    border: 2px solid #2E86C1;
+}

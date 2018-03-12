@@ -2,18 +2,25 @@ const blockWidth = 180;
 const blockMargin = 15;
 
 let objectsArray = [];
-function GraphicalObject(renderedObject, ancestor, level, position, type, relations) {
+function GraphicalObject(renderedObject, ancestor, level, position, type) {
     this.renderedObject = renderedObject;
     this.ancestor = ancestor;
     this.inheritors = [];
     this.level = level;
     this.position = position;
     this.type = type;
-    this.relations = relations;
+    this.relationAncestorObjects = [];
+    this.relationInheritObjects = [];
     this.selected = false;
     this.idName = 'type-' +  level + '-' + position;
     this.pushInheritor = function(inheritor) {
         return this.inheritors.push(inheritor);
+    };
+    this.pushRelationInheritObject = function(relationIheritObject) {
+        return this.relationInheritObjects.push(relationIheritObject);
+    };
+    this.pushRelationAncestorObject = function(relationAncestorObject) {
+        return this.relationAncestorObjects.push(relationAncestorObject);
     };
     this.getInheritorsLength = function() {
         return this.inheritors.length;
@@ -24,7 +31,10 @@ function GraphicalObject(renderedObject, ancestor, level, position, type, relati
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    
+
+    $('.pop-up-background').hide();
+
+
     //document.getElementById("create-simple-schema-btn").addEventListener("click", createSimpleSchema(), false);
     $('body').on('dblclick', '[data-editable]', function(){
         
@@ -47,16 +57,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         let blockQuantity = 0;
+        let relationQuantity = 0;
         
         let selectedItem = "";
         let selection = false;
 
     $('#add-item').click(function(){
-        createSimpleSchema();
+        addClassBlock();
     });
 
     $('#remove-item').click(function(){
-        removeItem()
+        removeItem();
+    });
+
+    $('#add-child').click(function(){
+        showPopUp();
+    });
+
+    $('#cancel-creation').click(function(){
+        closePopUp();
+    });
+
+    $('#create-block').click(function(){
+        closePopUp();
+        addClassBlock();
     });
 
     function removeItem() {
@@ -99,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedItem = "";
     }
 
-    function createSimpleSchema() {
+    function addClassBlock() {
 
         let block = $("<div></div>");
         block.addClass('simple-block');
@@ -127,6 +151,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
 
+        block.contextmenu(function (event) {
+            showContextMenu(event);
+        });
+
         let mainText = $("<p data-editable></p>");
         mainText.text("Text-" + blockQuantity);
         mainText.addClass('simple-text');
@@ -134,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let blockObject = null;
         let ancestorObject = null;
         if (selectedItem === "") {
-            blockObject = new GraphicalObject(block, null, 0, 1, 'block', 'none');
+            blockObject = new GraphicalObject(block, null, 0, 1, 'block');
             let itemsWithCurrentLevel = findByLevel(blockObject.level, objectsArray);
             changePositionOfSiblings(blockObject, objectsArray, itemsWithCurrentLevel.length + 1);
         } else {
@@ -144,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ancestorObject = objectsArray[i];
                 }
             }
-            blockObject = new GraphicalObject(block, ancestor, ancestorObject.level + 1, 1, 'block', 'none');
+            blockObject = new GraphicalObject(block, ancestor, ancestorObject.level + 1, 1, 'block');
             blockObject.ancestor.children(".simple-text").text(blockObject.ancestor.children().text() + " Parent of " + blockObject.renderedObject.attr('id'));   
             ancestorObject.pushInheritor(blockObject); 
             let itemsWithCurrentLevel = findByLevel(blockObject.level, objectsArray);
@@ -155,61 +183,76 @@ document.addEventListener('DOMContentLoaded', function () {
         objectsArray.push(blockObject);
         $("#canvas").append(block);
         if (selectedItem !== "") {
-
-            let blockPosition = block.position();
-            let ancestorPosition = ancestorObject.renderedObject.position();
-            let blockHeight = block.innerHeight();
-            let ancestorHeight = ancestorObject.renderedObject.innerHeight();
-
-            let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            let svgNS = svg.namespaceURI;
-            let lineColor = block.css('border-color');
-
-            // let rect = document.createElementNS(svgNS,'rect');
-            // rect.setAttribute('x', 0);
-            // rect.setAttribute('y', 0);
-            // rect.setAttribute('width', 20);
-            // rect.setAttribute('height', 20);
-            // rect.setAttribute('fill', lineColor);
-            // let figure = rect;
-            // svg.setAttribute('height', figure.getAttribute('height'));
-            // svg.setAttribute('width', figure.getAttribute('width'));
-
-            // svg.style.top = blockPosition.top;
-            // svg.style.left = blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2;
-            // svg.appendChild(rect);
-
-            // document.getElementById('canvas').appendChild(svg);
-
-            let svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-            let line = document.createElementNS(svgNS,'line');
-            // line.setAttribute('x1', ancestorPosition.left + getWidth(block) / 2);
-            // line.setAttribute('y1',  ancestorPosition.top + ancestorHeight);
-            // line.setAttribute('x2', blockPosition.left + getWidth(block) / 2 + figure.getAttribute('width') / 2);
-            // line.setAttribute('y2', blockPosition.top);
-
-            let lineLeft = ancestorPosition.left + getWidth(block) / 2 + parseInt(block.css('margin-top').slice(0, -2) * 2);
-            let lineTop = ancestorPosition.top + ancestorHeight + parseInt(block.css('margin-top').slice(0, -2));
-            line.setAttribute('x1', 0);
-            line.setAttribute('y1', 0);
-            line.setAttribute('x2', blockPosition.left - lineLeft / 2 - getWidth(block) / 2 - blockMargin * 2 - 4);
-            line.setAttribute('y2', 100 - ancestorHeight);
-            line.setAttribute('stroke', lineColor);
-            line.setAttribute('srtoke-width', 3);
-            figure = line;
-            svg1.setAttribute('height', Math.abs(figure.getAttribute('y2') - figure.getAttribute('y1')));
-            svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 2));
-            
-            svg1.style.top = lineTop;
-            svg1.style.left = lineLeft;
-            svg1.appendChild(line);
-
-
-            document.getElementById('canvas').appendChild(svg1);
+            drawRelation(blockObject, ancestorObject);
         }
         blockQuantity += 1;
     }
+
+    function drawRelation(blockObject, ancestorObject) {
+        let blockPosition = blockObject.renderedObject.position();
+        let ancestorPosition = ancestorObject.renderedObject.position();
+        let blockHeight = blockObject.renderedObject.innerHeight();
+        let ancestorHeight = ancestorObject.renderedObject.innerHeight();
+
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        let svgNS = svg.namespaceURI;
+        let lineColor = blockObject.renderedObject.css('border-color');
+
+        let svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+        let line = document.createElementNS(svgNS,'line');
+
+        let lineLeft = 0;
+        let lineTop = ancestorPosition.top + ancestorHeight + parseInt(blockObject.renderedObject.css('margin-top').slice(0, -2));
+
+        if (ancestorPosition.left <= blockPosition.left) {
+            lineLeft = ancestorPosition.left + getWidth(blockObject.renderedObject) / 2 + parseInt(blockObject.renderedObject.css('margin-top').slice(0, -2) * 2);
+        } else {
+            lineLeft = blockPosition.left + getWidth(blockObject.renderedObject) / 2 + parseInt(blockObject.renderedObject.css('margin-top').slice(0, -2) * 2);
+        }
+
+        line.setAttribute('y1', 0);
+        line.setAttribute('y2', 100 - ancestorHeight);
+        if (ancestorPosition.left <= blockPosition.left) {
+            line.setAttribute('x1', 0);
+            // line.setAttribute('x2', blockPosition.left - lineLeft / 2 - getWidth(blockObject.renderedObject) / 2 - blockMargin * 2 - 4);
+            console.log(blockPosition.left);
+            console.log(ancestorPosition.left);
+            line.setAttribute('x2', blockPosition.left - (ancestorPosition.left + getWidth(blockObject.renderedObject) / 2) + getWidth(blockObject.renderedObject) / 2);
+        } else {
+            line.setAttribute('x1', ancestorPosition.left - (blockPosition.left + getWidth(blockObject.renderedObject) / 2) + getWidth(blockObject.renderedObject) / 2);
+            line.setAttribute('x2', 0);
+        }
+        line.setAttribute('stroke', lineColor);
+        line.setAttribute('srtoke-width', 3);
+        figure = line;
+        svg1.setAttribute('height', Math.abs(figure.getAttribute('y2') - figure.getAttribute('y1')));
+        svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 2));
+        
+        svg1.style.top = lineTop;
+        svg1.style.left = lineLeft;
+        svg1.appendChild(line);
+        svg1.addEventListener('dblclick', function(event) {
+            removeRelation(event);
+        }, false);
+        svg1.addEventListener('contextmenu' , function (event) {
+            showContextMenu(event);
+        }, false);
+        svg1.classList.add('draggable');
+        blockObject.pushRelationAncestorObject(svg1);
+        ancestorObject.pushRelationInheritObject(svg1);
+        svg1.id = 'line' + relationQuantity;
+        document.getElementById('canvas').appendChild(svg1);
+        relationQuantity++;
+    }
+
+    function showPopUp() {
+        $('.pop-up-background').show();
+    } 
+
+    function closePopUp() {
+        $('.pop-up-background').hide();
+    } 
 });
 
 function getWidth(object) {
@@ -243,4 +286,45 @@ function changePositionOfSiblings(object, objectsArray, itemsQuantity) {
         object.renderedObject.css('left', shift  + 'px');  
     }
 }
+}
+
+function showContextMenu(event) {
+    if (event !== null) {
+        let item = event.target;
+        let contextMenu =  $("<div></div>");
+        contextMenu.addClass('context-menu');
+        let currentObject = $('#' + item.getAttribute('id')); 
+        contextMenu.css('top', currentObject.position().top + blockMargin);
+        contextMenu.css('left', currentObject.position().left + currentObject.width() - 20);
+        let contextMenuContent = $("<ul></ul>");
+        let contextmenuItem1 =  $("<li />").text('Text 1');
+        let contextmenuItem2 =  $("<li />").text('Text 2');
+        let contextmenuItem3 =  $("<li />").text('Text 3');
+        contextmenuItem1.click(function(event) {
+            removeContextMenu(event);
+        });
+        contextmenuItem2.click(function(event) {
+            removeContextMenu(event);
+        });
+        contextmenuItem3.click(function(event) {
+            removeContextMenu(event);
+        });
+        contextMenu.append(contextmenuItem1);
+        contextMenu.append(contextmenuItem2);
+        contextMenu.append(contextmenuItem3);
+        $("#canvas").append(contextMenu);
+    }
+}
+
+
+function removeContextMenu(event) {
+    if (event !== null) {
+        $(".context-menu").remove();
+    }
+}
+
+function removeRelation(event) {
+    if (event.target !== null) {
+        $("#" + event.target.id).remove();
+    }
 }
