@@ -143,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         objectsArray[i].renderedObject.addClass('default-block');
                         if (objectsArray[i].renderedObject.attr('id') === item.id && objectsArray[i].selected === true) {
                             selectedItem = "";
-                            console.log(selectedItem);
                         } 
                         objectsArray[i].selected = false;
                     }
@@ -183,46 +182,50 @@ document.addEventListener('DOMContentLoaded', function () {
         objectsArray.push(blockObject);
         $("#canvas").append(block);
         if (selectedItem !== "") {
-            drawRelation(blockObject, ancestorObject);
+            drawRelation(blockObject.renderedObject, ancestorObject.renderedObject);
         }
         blockQuantity += 1;
     }
 
     function drawRelation(blockObject, ancestorObject) {
-        let blockPosition = blockObject.renderedObject.position();
-        let ancestorPosition = ancestorObject.renderedObject.position();
-        let blockHeight = blockObject.renderedObject.innerHeight();
-        let ancestorHeight = ancestorObject.renderedObject.innerHeight();
+        let blockPosition = blockObject.position();
+        let ancestorPosition = ancestorObject.position();
+        let blockHeight = blockObject.innerHeight();
+        let ancestorHeight = ancestorObject.innerHeight();
 
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let svgNS = svg.namespaceURI;
-        let lineColor = blockObject.renderedObject.css('border-color');
+        let lineColor = blockObject.css('border-color');
 
         let svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
         let line = document.createElementNS(svgNS,'line');
 
         let lineLeft = 0;
-        let lineTop = ancestorPosition.top + ancestorHeight + parseInt(blockObject.renderedObject.css('margin-top').slice(0, -2));
+        let lineTop = ancestorPosition.top + ancestorHeight + parseInt(blockObject.css('margin-top').slice(0, -2));
 
         if (ancestorPosition.left <= blockPosition.left) {
-            lineLeft = ancestorPosition.left + getWidth(blockObject.renderedObject) / 2 + parseInt(blockObject.renderedObject.css('margin-top').slice(0, -2) * 2);
+            lineLeft = ancestorPosition.left + getWidth(blockObject) / 2 + parseInt(blockObject.css('margin-top').slice(0, -2) * 2);
         } else {
-            lineLeft = blockPosition.left + getWidth(blockObject.renderedObject) / 2 + parseInt(blockObject.renderedObject.css('margin-top').slice(0, -2) * 2);
+            lineLeft = blockPosition.left + getWidth(blockObject) / 2 + parseInt(blockObject.css('margin-top').slice(0, -2) * 2);
         }
 
         line.setAttribute('y1', 0);
         line.setAttribute('y2', 100 - ancestorHeight);
+        console.log(blockPosition.left);
+        console.log(ancestorPosition.left  + '----');
         if (ancestorPosition.left <= blockPosition.left) {
+            console.log('!');
             line.setAttribute('x1', 0);
-            // line.setAttribute('x2', blockPosition.left - lineLeft / 2 - getWidth(blockObject.renderedObject) / 2 - blockMargin * 2 - 4);
-            console.log(blockPosition.left);
-            console.log(ancestorPosition.left);
-            line.setAttribute('x2', blockPosition.left - (ancestorPosition.left + getWidth(blockObject.renderedObject) / 2) + getWidth(blockObject.renderedObject) / 2);
+            line.setAttribute('x2', blockPosition.left - (ancestorPosition.left + getWidth(blockObject) / 2) + getWidth(blockObject) / 2);
         } else {
-            line.setAttribute('x1', ancestorPosition.left - (blockPosition.left + getWidth(blockObject.renderedObject) / 2) + getWidth(blockObject.renderedObject) / 2);
+            line.setAttribute('x1', ancestorPosition.left - (blockPosition.left + getWidth(blockObject) / 2) + getWidth(blockObject) / 2);
             line.setAttribute('x2', 0);
         }
+        // console.log('x1 ' + line.getAttribute('x1'));
+        // console.log('x2 ' + line.getAttribute('x2'));
+        // console.log('xy1 ' + line.getAttribute('y1'));
+        // console.log('y2 ' + line.getAttribute('y2'));
         line.setAttribute('stroke', lineColor);
         line.setAttribute('srtoke-width', 3);
         figure = line;
@@ -239,8 +242,16 @@ document.addEventListener('DOMContentLoaded', function () {
             showContextMenu(event);
         }, false);
         svg1.classList.add('draggable');
-        blockObject.pushRelationAncestorObject(svg1);
-        ancestorObject.pushRelationInheritObject(svg1);
+
+        let block = null;
+        for (let i = 0; i < objectsArray.length; i++) {
+            if (objectsArray[i].renderedObject.attr('id') === blockObject.attr('id')) {
+                block = objectsArray[i];
+            }
+        }
+        block.pushRelationAncestorObject(svg1);
+        // blockAncestor.pushRelationInheritObject(svg1);
+
         svg1.id = 'line' + relationQuantity;
         document.getElementById('canvas').appendChild(svg1);
         relationQuantity++;
@@ -253,6 +264,29 @@ document.addEventListener('DOMContentLoaded', function () {
     function closePopUp() {
         $('.pop-up-background').hide();
     } 
+
+    function changePositionOfSiblings(object, objectsArray, itemsQuantity) {
+        let canvasWidth = getWidth($("#canvas"));
+        let totalItemsWidth = blockWidth * itemsQuantity + blockMargin * (itemsQuantity - 1);
+        let shift = canvasWidth / 2 - totalItemsWidth / 2;
+        if (itemsQuantity === 1) {
+            object.renderedObject.css('left', shift + 'px');
+        } else {
+            shift -= blockMargin;
+        for (let i = 0; i < objectsArray.length; i++) {
+            if (objectsArray[i].level === object.level) {
+                objectsArray[i].renderedObject.css('left', shift + 'px');
+                shift += blockWidth + blockMargin * 2;
+                let objectAncestor = objectsArray[i].ancestor;
+                for (let j = 0; j < objectsArray[i].relationAncestorObjects.length; j++) {
+                    $("#" + objectsArray[i].relationAncestorObjects[j].id).remove();
+                }
+                drawRelation(objectsArray[i].renderedObject, objectAncestor);
+            }
+            object.renderedObject.css('left', shift  + 'px');  
+        }
+    }
+    }
 });
 
 function getWidth(object) {
@@ -270,23 +304,7 @@ function findByLevel(level, objectsArray) {
     return objectsWithCurrentLevelArray;
 }
 
-function changePositionOfSiblings(object, objectsArray, itemsQuantity) {
-    let canvasWidth = getWidth($("#canvas"));
-    let totalItemsWidth = blockWidth * itemsQuantity + blockMargin * (itemsQuantity - 1);
-    let shift = canvasWidth / 2 - totalItemsWidth / 2;
-    if (itemsQuantity === 1) {
-        object.renderedObject.css('left', shift + 'px');
-    } else {
-        shift -= blockMargin;
-    for (let i = 0; i < objectsArray.length; i++) {
-        if (objectsArray[i].level === object.level) {
-            objectsArray[i].renderedObject.css('left', shift + 'px');
-            shift += blockWidth + blockMargin * 2;
-        }
-        object.renderedObject.css('left', shift  + 'px');  
-    }
-}
-}
+
 
 function showContextMenu(event) {
     if (event !== null) {
