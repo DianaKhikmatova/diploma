@@ -1,6 +1,12 @@
 const blockWidth = 180;
 const blockMargin = 15;
 
+let blockQuantity = 0;
+let relationQuantity = 0;
+
+let selectedItem = "";
+let selection = false;
+
 let objectsArray = [];
 function GraphicalObject(renderedObject, ancestor, level, position, type) {
     this.renderedObject = renderedObject;
@@ -21,6 +27,17 @@ function GraphicalObject(renderedObject, ancestor, level, position, type) {
     };
     this.pushRelationAncestorObject = function(relationAncestorObject) {
         return this.relationAncestorObjects.push(relationAncestorObject);
+    };
+    // this.removeRelationAncestorObject = function(relationAncestorObject) {
+    //     for (let i = 0; i < this.relationAncestorObjects; i++) {
+    //         if (this.relationAncestorObjects[i] === relationAncestorObject) {
+    //             this.relationAncestorObjects.splice(i, 1);
+    //         }
+    //     }
+    //     return this.relationAncestorObjects;
+    // };
+    this.clearRelationAncestorObjects = function() {
+        return this.relationAncestorObjects.splice(0, this.relationAncestorObjects.length);
     };
     this.getInheritorsLength = function() {
         return this.inheritors.length;
@@ -54,13 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
         $input.one('blur', save).focus();
         
         });
-
-
-        let blockQuantity = 0;
-        let relationQuantity = 0;
-        
-        let selectedItem = "";
-        let selection = false;
 
     $('#add-item').click(function(){
         addClassBlock();
@@ -187,76 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
         blockQuantity += 1;
     }
 
-    function drawRelation(blockObject, ancestorObject) {
-        let blockPosition = blockObject.position();
-        let ancestorPosition = ancestorObject.position();
-        let blockHeight = blockObject.innerHeight();
-        let ancestorHeight = ancestorObject.innerHeight();
-
-        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        let svgNS = svg.namespaceURI;
-        let lineColor = blockObject.css('border-color');
-
-        let svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-        let line = document.createElementNS(svgNS,'line');
-
-        let lineLeft = 0;
-        let lineTop = ancestorPosition.top + ancestorHeight + parseInt(blockObject.css('margin-top').slice(0, -2));
-
-        if (ancestorPosition.left <= blockPosition.left) {
-            lineLeft = ancestorPosition.left + getWidth(blockObject) / 2 + parseInt(blockObject.css('margin-top').slice(0, -2) * 2);
-        } else {
-            lineLeft = blockPosition.left + getWidth(blockObject) / 2 + parseInt(blockObject.css('margin-top').slice(0, -2) * 2);
-        }
-
-        line.setAttribute('y1', 0);
-        line.setAttribute('y2', 100 - ancestorHeight);
-        console.log(blockPosition.left);
-        console.log(ancestorPosition.left  + '----');
-        if (ancestorPosition.left <= blockPosition.left) {
-            console.log('!');
-            line.setAttribute('x1', 0);
-            line.setAttribute('x2', blockPosition.left - (ancestorPosition.left + getWidth(blockObject) / 2) + getWidth(blockObject) / 2);
-        } else {
-            line.setAttribute('x1', ancestorPosition.left - (blockPosition.left + getWidth(blockObject) / 2) + getWidth(blockObject) / 2);
-            line.setAttribute('x2', 0);
-        }
-        // console.log('x1 ' + line.getAttribute('x1'));
-        // console.log('x2 ' + line.getAttribute('x2'));
-        // console.log('xy1 ' + line.getAttribute('y1'));
-        // console.log('y2 ' + line.getAttribute('y2'));
-        line.setAttribute('stroke', lineColor);
-        line.setAttribute('srtoke-width', 3);
-        figure = line;
-        svg1.setAttribute('height', Math.abs(figure.getAttribute('y2') - figure.getAttribute('y1')));
-        svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 2));
-        
-        svg1.style.top = lineTop;
-        svg1.style.left = lineLeft;
-        svg1.appendChild(line);
-        svg1.addEventListener('dblclick', function(event) {
-            removeRelation(event);
-        }, false);
-        svg1.addEventListener('contextmenu' , function (event) {
-            showContextMenu(event);
-        }, false);
-        svg1.classList.add('draggable');
-
-        let block = null;
-        for (let i = 0; i < objectsArray.length; i++) {
-            if (objectsArray[i].renderedObject.attr('id') === blockObject.attr('id')) {
-                block = objectsArray[i];
-            }
-        }
-        block.pushRelationAncestorObject(svg1);
-        // blockAncestor.pushRelationInheritObject(svg1);
-
-        svg1.id = 'line' + relationQuantity;
-        document.getElementById('canvas').appendChild(svg1);
-        relationQuantity++;
-    }
-
+    
     function showPopUp() {
         $('.pop-up-background').show();
     } 
@@ -288,6 +229,76 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     }
 });
+
+function drawRelation(blockObject, ancestorObject) {
+    let blockPosition = blockObject.position();
+    let ancestorPosition = ancestorObject.position();
+    let blockHeight = blockObject.innerHeight();
+    let ancestorHeight = ancestorObject.innerHeight();
+
+    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    let svgNS = svg.namespaceURI;
+    let lineColor = blockObject.css('border-color');
+
+    let svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+    let line = document.createElementNS(svgNS,'line');
+
+    let lineLeft = 0;
+    let lineTop = ancestorPosition.top + ancestorHeight + parseInt(blockObject.css('margin-top').slice(0, -2));
+
+    if (ancestorPosition.left <= blockPosition.left) {
+        lineLeft = ancestorPosition.left + getWidth(blockObject) / 2 + parseInt(blockObject.css('margin-top').slice(0, -2) * 2);
+    } else {
+        lineLeft = blockPosition.left + getWidth(blockObject) / 2 + parseInt(blockObject.css('margin-top').slice(0, -2) * 2);
+    }
+
+    line.setAttribute('y1', 0);
+    //console.log(an.top);
+    line.setAttribute('y2', blockPosition.top - ancestorPosition.top - ancestorHeight);
+    if (ancestorPosition.left <= blockPosition.left) {
+        line.setAttribute('x1', 0);
+        line.setAttribute('x2', blockPosition.left - (ancestorPosition.left + getWidth(blockObject) / 2) + getWidth(blockObject) / 2);
+    } else {
+        line.setAttribute('x1', ancestorPosition.left - (blockPosition.left + getWidth(blockObject) / 2) + getWidth(blockObject) / 2);
+        line.setAttribute('x2', 0);
+    }
+    // console.log('x1 ' + line.getAttribute('x1'));
+    // console.log('x2 ' + line.getAttribute('x2'));
+    // console.log('xy1 ' + line.getAttribute('y1'));
+    // console.log('y2 ' + line.getAttribute('y2'));
+    line.setAttribute('stroke', lineColor);
+    line.setAttribute('srtoke-width', 3);
+    figure = line;
+    svg1.setAttribute('height', Math.abs(figure.getAttribute('y2') - figure.getAttribute('y1')));
+    svg1.setAttribute('width', Math.abs(figure.getAttribute('x2') - figure.getAttribute('x1') + 2));
+    
+    svg1.style.top = lineTop;
+    svg1.style.left = lineLeft;
+    svg1.appendChild(line);
+    svg1.addEventListener('dblclick', function(event) {
+        removeRelation(event);
+    }, false);
+    svg1.addEventListener('contextmenu' , function (event) {
+        showContextMenu(event);
+    }, false);
+    svg1.classList.add('draggable');
+
+    let block = null;
+    for (let i = 0; i < objectsArray.length; i++) {
+        if (objectsArray[i].renderedObject.attr('id') === blockObject.attr('id')) {
+            block = objectsArray[i];
+        }
+    }
+    block.pushRelationAncestorObject(svg1);
+    //console.log(block.relationAncestorObjects);
+    // blockAncestor.pushRelationInheritObject(svg1);
+
+    svg1.id = 'line' + relationQuantity;
+    document.getElementById('canvas').appendChild(svg1);
+    relationQuantity++;
+}
+
 
 function getWidth(object) {
     let widthInString = object.css('width');

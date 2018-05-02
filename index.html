@@ -28,6 +28,28 @@
             var target = event.target,
                 x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
                 y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                // console.log("x = ", x);
+                // console.log("y = ", y);
+                let currentObject, ancestorObject;
+                for (let i = 0; i < objectsArray.length; i++) {
+                    if (objectsArray[i].renderedObject.attr('id') === target.id) {
+                        currentObject = objectsArray[i].renderedObject;
+                        ancestorObject = objectsArray[i].ancestor;
+                        for (let j = 0; j < objectsArray[i].relationAncestorObjects.length; j++) {
+                            let svg = document.getElementById(objectsArray[i].relationAncestorObjects[0].id);
+                            if (svg !== null) {
+                                svg.parentNode.removeChild(svg);
+                            }
+                        }
+                        //objectsArray[i].relationAncestorObjects.remove();
+                        //objectsArray[i].removeRelationAncestorObject(objectsArray[i].relationAncestorObjects);
+                        objectsArray[i].clearRelationAncestorObjects();
+                        console.log(objectsArray[i].relationAncestorObjects);
+                    }
+                }
+            //console.log(currentObject.relationAncestorObjects);
+            //console.log(currentObject.relationInheritObjects);
+            drawRelation(currentObject, ancestorObject);
             target.style.webkitTransform =
                 target.style.transform =
                     'translate(' + x + 'px, ' + y + 'px)';
