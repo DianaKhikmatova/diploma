@@ -28,11 +28,11 @@
             var target = event.target,
                 x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
                 y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-                // console.log("x = ", x);
-                // console.log("y = ", y);
-                let currentObject, ancestorObject;
+                let currentObject, ancestorObject, currentObjectObject;
+                // finding and changing relations with ancestor node 
                 for (let i = 0; i < objectsArray.length; i++) {
                     if (objectsArray[i].renderedObject.attr('id') === target.id) {
+                        currentObjectObject = objectsArray[i];
                         currentObject = objectsArray[i].renderedObject;
                         ancestorObject = objectsArray[i].ancestor;
                         for (let j = 0; j < objectsArray[i].relationAncestorObjects.length; j++) {
@@ -41,15 +41,44 @@
                                 svg.parentNode.removeChild(svg);
                             }
                         }
-                        //objectsArray[i].relationAncestorObjects.remove();
-                        //objectsArray[i].removeRelationAncestorObject(objectsArray[i].relationAncestorObjects);
                         objectsArray[i].clearRelationAncestorObjects();
-                        console.log(objectsArray[i].relationAncestorObjects);
+                        drawRelation(currentObject, ancestorObject);
                     }
                 }
+                // finding and changing relations with inheritors blocks
+                let inheritRelationsArray;
+                if (currentObjectObject.relationInheritObjects !== []) {
+                    inheritRelationsArray = currentObjectObject.relationInheritObjects;
+                }
+                console.log(inheritRelationsArray);
+
+                let inheritorsArray;
+                if (currentObjectObject.inheritors !== []) {
+                    inheritorsArray = currentObjectObject.inheritors;
+                }
+                console.log(inheritorsArray);
+
+                for (let i = 0; i < inheritRelationsArray.length; i++) {
+
+                }
+                // for (let i = 0; i < objectsArray.length; i++) {
+                //     // find blocks with current relation
+                //     for (let j = 0; j < objectsArray[i].relationInheritObjects.length; j++) {
+                //         if (objectsArray[i].relationAncestorObjects.length !== 0) {
+                //             for (let k = 0; k < inheritObjectsArray.length; k++) {
+                //                 console.log(inheritObjectsArray[k] + " " +  objectsArray[i].relationAncestorObjects[j]);
+                //                 if (inheritObjectsArray[k] === objectsArray[i].relationAncestorObjects[j]) {
+                //                     console.log("match");
+                //                 }
+                //             }
+                //            //console.log(objectsArray[i].relationAncestorObjects[j]);
+                //         }
+                //     }
+                // }
+
             //console.log(currentObject.relationAncestorObjects);
             //console.log(currentObject.relationInheritObjects);
-            drawRelation(currentObject, ancestorObject);
+
             target.style.webkitTransform =
                 target.style.transform =
                     'translate(' + x + 'px, ' + y + 'px)';

@@ -28,16 +28,28 @@ function GraphicalObject(renderedObject, ancestor, level, position, type) {
     this.pushRelationAncestorObject = function(relationAncestorObject) {
         return this.relationAncestorObjects.push(relationAncestorObject);
     };
-    // this.removeRelationAncestorObject = function(relationAncestorObject) {
+    this.removeRelationAncestorObject = function(relationAncestorObject) {
+        for (let i = 0; i < this.relationAncestorObjects; i++) {
+            if (this.relationAncestorObjects[i] === relationAncestorObject) {
+                console.log(this.relationAncestorObjects.splice(i, 1));
+            }
+        }
+        return this.relationAncestorObjects;
+    };
+    // this.removeRelationInheritorObject = function(relationAncestorObject) {
     //     for (let i = 0; i < this.relationAncestorObjects; i++) {
     //         if (this.relationAncestorObjects[i] === relationAncestorObject) {
-    //             this.relationAncestorObjects.splice(i, 1);
+    //             console.log(this.relationAncestorObjects.splice(i, 1));
+    //             //this.relationAncestorObjects.splice(i, 1);
     //         }
     //     }
     //     return this.relationAncestorObjects;
     // };
     this.clearRelationAncestorObjects = function() {
         return this.relationAncestorObjects.splice(0, this.relationAncestorObjects.length);
+    };
+    this.clearRelationInheritorObjects = function() {
+        return this.relationInheritObjects.splice(0, this.relationInheritObjects.length);
     };
     this.getInheritorsLength = function() {
         return this.inheritors.length;
@@ -70,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         $input.one('blur', save).focus();
         
-        });
+    });
 
     $('#add-item').click(function(){
         addClassBlock();
@@ -232,9 +244,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function drawRelation(blockObject, ancestorObject) {
     let blockPosition = blockObject.position();
-    let ancestorPosition = ancestorObject.position();
+    let ancestorPosition, ancestorHeight;
     let blockHeight = blockObject.innerHeight();
-    let ancestorHeight = ancestorObject.innerHeight();
+    if (ancestorObject !== null) {
+        ancestorPosition = ancestorObject.position();
+        ancestorHeight = ancestorObject.innerHeight();
+    }
+    
 
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     let svgNS = svg.namespaceURI;
@@ -285,14 +301,20 @@ function drawRelation(blockObject, ancestorObject) {
     svg1.classList.add('draggable');
 
     let block = null;
+    let ancestor = null;
     for (let i = 0; i < objectsArray.length; i++) {
         if (objectsArray[i].renderedObject.attr('id') === blockObject.attr('id')) {
             block = objectsArray[i];
         }
+        if (objectsArray[i].renderedObject.attr('id') === ancestorObject.attr('id')) {
+            ancestor = objectsArray[i];
+        }
     }
     block.pushRelationAncestorObject(svg1);
-    //console.log(block.relationAncestorObjects);
-    // blockAncestor.pushRelationInheritObject(svg1);
+    if (!ancestor.inheritors.includes(block)) {
+        ancestor.pushInheritor(block);        
+    }
+    ancestor.pushRelationInheritObject(svg1);
 
     svg1.id = 'line' + relationQuantity;
     document.getElementById('canvas').appendChild(svg1);
