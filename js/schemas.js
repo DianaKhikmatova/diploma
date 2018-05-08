@@ -60,7 +60,8 @@ document.addEventListener('DOMContentLoaded', function () {
             $(innerElement).dblclick(editText);
         }
         counter++;
-        $(this).append(innerElement);
+        element.addClass("resize-drag");
+        $(this).append(element);
         }
     });
 
