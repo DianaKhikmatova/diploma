@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Drag Drop Demo</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.8/interact.min.js"></script>
     
@@ -30,15 +30,45 @@
 <body>
     <div class="resizable"></div>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul li {
+            list-style-type: none;
+        }
+
+        body {
+            background-color: #F5F5F5;
+        }
+        .simple-text {
+            text-align: center;
+            font-size: 14px;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+        }
         .container {
             width: 96%;
             margin: 0 auto;
         }
-        #canvas {
+        .canvas-container {
             display: inline-block;
             width: 75%;
+            margin: 30px auto;
+        }
+        #canvas {
+            position: relative;
+            min-height: 600px;
+            padding: 20px;
+            background-color: #fff;
             border: 1px solid #E5E7E9;
             box-shadow: 0 0 1px 1px rgba(93, 109, 126, 0.05);
+        }
+        .notes {
+            width: 98%;
+            height: 60px;
+            padding: 1%;
+            margin: -1px 0 0 -1px;
+            border: 1px solid #E5E7E9;
         }
         .draggable {
             display: inline-block;
@@ -88,12 +118,17 @@
                 document.getElementById("plant").style.backgroundRepeat = "no-repeat";
             </script>
         </div>
-        <div id="canvas">
-                <!-- <svg width="50px" height="50px" class="draggable inline-block-display" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 1000 1000">
-                    <g class="plant">
-                        <path id="plant"/>
-                    </g>
-                </svg> -->
+        <div class="canvas-container">
+            <div id="canvas">
+                    <!-- <svg width="50px" height="50px" class="draggable inline-block-display" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 1000 1000">
+                        <g class="plant">
+                            <path id="plant"/>
+                        </g>
+                    </svg> -->
+            </div>
+            <div id="notes-container" class="notes-container">
+                <textarea id="notes" class="notes" placeholder="Make some notes here"></textarea>
+            </div>
         </div>
     </div>
 

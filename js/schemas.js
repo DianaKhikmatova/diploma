@@ -19,12 +19,11 @@ let select = function (event) {
     let index = findElement(selectElemets, element);
     if (index === -1) {
         //selectElemets.push(element);
-        selectElemets.push({ "element": element, "rotate": false, "resize": false });
-        console.log(selectElemets);
+        selectElemets.push({ "element": element, "rotate": false, "resize": false, "zIndex": element.css("z-index")});
+        console.log(element.css('z-index'));
         element.addClass('edit-border');
     } else {
         selectElemets.splice(index, 1);
-        console.log(selectElemets);
         element.removeClass('edit-border');
     }
 }
@@ -43,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     $(document).keydown(function (e) {
+        let currentZIndex = 0;
         for (let i = 0; i < selectElemets.length; i++) {
             switch (e.keyCode) {
                 case 84:
@@ -68,30 +68,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     break;
                 case 46:
-                    //console.log(element);
-                    //element.off("dblclick", editElement);
-                    // console.log(element.attr('id'));
-                    // console.log(document.getElementById("canvas").childNodes);
-                    // console.log(element.parent());
-                    //console.log(document.getElementById(element.attr('id')).parentNode);
-                    //console.log($("#" + element.attr('id')));
-                    //$("#canvas").remove(element);
-                    // document.getElementById("canvas").removeChild(document.getElementById(element.attr('id')));
-                    // console.log(item);
-                    //let index = findElement(selectElemets, item.element);
                     selectElemets[i].element.remove();
                     selectElemets.splice(i, 1);
                     i--;
-                   
-                    //element = null;
-                    // return;
                     break;
                 case 67:
-                    //let elementCopy = $.extend({}, element);
                     let elementCopy = selectElemets[i].element.clone();
                     elementCopy.removeClass('edit-border');
                     elementCopy.dblclick(select);
                     elementCopy.appendTo("#canvas");
+                    break;
+                case 221:
+                    currentZIndex = selectElemets[i].zIndex;
+                    currentZIndex = +currentZIndex + 1;
+                    selectElemets[i].zIndex = currentZIndex;
+                    selectElemets[i].element.css("z-index", currentZIndex);
+                    break;
+                case 219:
+                    if (selectElemets[i].zIndex > 0) {
+                        currentZIndex = selectElemets[i].zIndex;
+                        currentZIndex = +currentZIndex - 1;
+                        selectElemets[i].zIndex = currentZIndex;
+                        selectElemets[i].element.css("z-index", currentZIndex);
+                    }
                     break;
                 default:
                     break;
@@ -155,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
             counter++;
             element.dblclick(select);
             element.attr("id", globalCounter);
+            element.css("z-index", 0)
             $(this).append(element);
             globalCounter++;
         }
